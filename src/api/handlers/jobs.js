@@ -4,17 +4,17 @@ import { withLatency, maybeFail } from '../../utils/sleep.js';
 import slugify from '../../utils/slugify.js';
 
 export const jobsHandlers = [
-  // GET /jobs?search=&status=&page=&pageSize=&sort=
+  // GET /jobs
   http.get('/jobs', async ({ request }) => withLatency(async () => {
     const url = new URL(request.url);
-    const search = url.searchParams.get('search')?.toLowerCase() || '';
+    const search = (url.searchParams.get('search') || '').toLowerCase();
     const status = url.searchParams.get('status') || '';
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10', 10);
     const sort = url.searchParams.get('sort') || 'order';
 
     let rows = await db.jobs.toArray();
-    if (search) rows = rows.filter(j => j.title.toLowerCase().includes(search));
+    if (search) rows = rows.filter(j => j.title.toLowerCase().includes(search) || j.slug.includes(search));
     if (status) rows = rows.filter(j => j.status === status);
     rows.sort((a,b)=> (a[sort] > b[sort] ? 1 : -1));
 
@@ -30,9 +30,9 @@ export const jobsHandlers = [
     const body = await request.json();
     if (!body.title) return new HttpResponse('Title required', { status: 400 });
 
-    const slug = body.slug || slugify(body.title);
-    const exists = await db.jobs.where('slug').equals(slug).first();
-    if (exists) return new HttpResponse('Slug must be unique', { status: 409 });
+    const slug = body.slug ? slugify(body.slug) : slugify(body.title);
+    const dup = await db.jobs.where('slug').equals(slug).first();
+    if (dup) return new HttpResponse('Slug must be unique', { status: 409 });
 
     const order = (await db.jobs.count()) + 1;
     const job = { id: crypto.randomUUID(), title: body.title, slug, status: 'active', tags: body.tags || [], order };
@@ -43,27 +43,30 @@ export const jobsHandlers = [
   // PATCH /jobs/:id
   http.patch('/jobs/:id', async ({ params, request }) => withLatency(async () => {
     maybeFail(0.08);
-    const updates = await request.json();
     const id = params.id;
+    const updates = await request.json();
     const job = await db.jobs.get(id);
     if (!job) return new HttpResponse('Not found', { status: 404 });
+
     if (updates.slug) {
-      const dup = await db.jobs.where('slug').equals(updates.slug).first();
+      const slug = slugify(updates.slug);
+      const dup = await db.jobs.where('slug').equals(slug).first();
       if (dup && dup.id !== id) return new HttpResponse('Slug must be unique', { status: 409 });
+      updates.slug = slug;
     }
+
     await db.jobs.update(id, updates);
-    return HttpResponse.json({ ...job, ...updates });
+    const updated = await db.jobs.get(id);
+    return HttpResponse.json(updated);
   })),
 
-  // PATCH /jobs/:id/reorder { fromOrder, toOrder }
+  // PATCH /jobs/:id/reorder
   http.patch('/jobs/:id/reorder', async ({ request }) => withLatency(async () => {
-    maybeFail(0.1); // occasionally 500 to test rollback
+    maybeFail(0.1);
     const { fromOrder, toOrder } = await request.json();
     const rows = await db.jobs.orderBy('order').toArray();
-
-    // shift orders
     const moving = rows.find(r => r.order === fromOrder);
-    if (!moving) return new HttpResponse('Bad order', { status: 400 });
+    if (!moving || toOrder < 1 || toOrder > rows.length) return new HttpResponse('Bad order', { status: 400 });
 
     rows.forEach(r => {
       if (fromOrder < toOrder) {

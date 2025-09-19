@@ -1,39 +1,90 @@
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { useAssessment, useSubmitAssessment } from './useAssessmentsApi.js';
+import Spinner from '../../components/Spinner.jsx';
+import ErrorBanner from '../../components/ErrorBanner.jsx';
 import { useForm } from 'react-hook-form';
-import { useAssessmentByJob } from './useAssessmentsApi.js';
 
-function shouldShow(q, values) {
-  if (!q.when) return true;
-  const { questionId, equals } = q.when; // simple conditional
-  return values[questionId] === equals;
+function Field({ q, register, errors, watch }) {
+  const required = q.required ? { required: 'Required' } : {};
+  const visible = (() => {
+    // simple conditional: show if q.when = { questionId, equals }
+    if (!q.when) return true;
+    const val = watch(q.when.questionId);
+    return val === q.when.equals;
+  })();
+  if (!visible) return null;
+
+  return (
+    <div className="card">
+      <label><strong>{q.label}</strong> {q.required && <span className="badge">required</span>}</label>
+      {q.type === 'short' && <input className="input" {...register(q.id, { ...required, maxLength: q.max || 300 })} />}
+      {q.type === 'long' && <textarea className="input" rows={4} {...register(q.id, { ...required, maxLength: q.max || 1000 })} />}
+      {q.type === 'number' && <input className="input" type="number" {...register(q.id, {
+        ...required,
+        valueAsNumber: true,
+        validate: v => {
+          if (typeof v !== 'number' || Number.isNaN(v)) return 'Invalid number';
+          if (q.range) {
+            if (v < q.range.min) return `Min ${q.range.min}`;
+            if (v > q.range.max) return `Max ${q.range.max}`;
+          }
+          return true;
+        }
+      })} />}
+      {q.type === 'single' && (
+        <div className="row" style={{flexWrap:'wrap', gap:8}}>
+          {q.options.map(opt => (
+            <label key={opt} className="row" style={{gap:6}}>
+              <input type="radio" value={opt} {...register(q.id, required)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      )}
+      {q.type === 'multi' && (
+        <div className="row" style={{flexWrap:'wrap', gap:8}}>
+          {q.options.map(opt => (
+            <label key={opt} className="row" style={{gap:6}}>
+              <input type="checkbox" value={opt} {...register(q.id, required)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      )}
+      {errors[q.id] && <div style={{color:'#b91c1c', marginTop:6}}>{errors[q.id]?.message || 'Invalid'}</div>}
+    </div>
+  );
 }
 
 export default function AssessmentRuntime() {
-  const { schema, submit } = useAssessmentByJob(); // wraps GET + POST submit
-  const form = useForm({ mode:'onBlur' });
+  const { jobId } = useParams();
+  const { data, isLoading, error } = useAssessment(jobId);
+  const submitApi = useSubmitAssessment(jobId);
+  const { register, handleSubmit, formState: { errors }, watch, reset } = useForm();
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    // numeric range check
-    schema.questions.filter(q=>q.type==='number' && q.range).forEach(q=>{
-      const v = Number(values[q.id]);
-      if (isNaN(v) || v < q.range.min || v > q.range.max) {
-        throw new Error(`${q.label} out of range`);
-      }
-    });
-    await submit(values);
-    // show success
-  });
+  if (isLoading) return <Spinner/>;
+  if (error) return <ErrorBanner error={error}/>;
 
-  const values = form.watch();
+  const onSubmit = async (values) => {
+    await submitApi.mutateAsync(values);
+    alert('Submitted!');
+    reset();
+  };
+
+  const schema = data?.schema || { title: 'Assessment', questions: [] };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      {schema.questions.filter(q=>shouldShow(q, values)).map(q=>(
-        <div key={q.id}>
-          <label className="block font-medium">{q.label}{q.required && ' *'}</label>
-          {/* render by q.type: radio group, checkboxes, input, textarea, number, file (stub) */}
-          {/* register with react-hook-form, add maxLength etc */}
-        </div>
-      ))}
-      <button className="btn-primary">Submit</button>
-    </form>
+    <div className="card">
+      <h2 style={{marginTop:0}}>{schema.title}</h2>
+      <form onSubmit={handleSubmit(onSubmit)} style={{display:'grid', gap:10}}>
+        {schema.questions.map(q => (
+          <Field key={q.id} q={q} register={register} errors={errors} watch={watch}/>
+        ))}
+        <button className="btn" type="submit" disabled={submitApi.isPending}>
+          {submitApi.isPending ? 'Submitting…' : 'Submit'}
+        </button>
+      </form>
+    </div>
   );
 }

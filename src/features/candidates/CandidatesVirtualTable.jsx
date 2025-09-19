@@ -1,5 +1,6 @@
+import React, { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function CandidatesVirtualTable({ rows, rowHeight=56 }) {
   const parentRef = useRef(null);
@@ -11,18 +12,21 @@ export default function CandidatesVirtualTable({ rows, rowHeight=56 }) {
   });
 
   return (
-    <div ref={parentRef} className="h-[70vh] overflow-auto border rounded-lg">
+    <div ref={parentRef} style={{height:'70vh'}} className="card">
       <div style={{ height: virtual.getTotalSize(), position: 'relative' }}>
         {virtual.getVirtualItems().map(item => {
           const c = rows[item.index];
           return (
-            <div key={c.id} className="px-3 flex items-center gap-3 border-b absolute left-0 right-0"
-                 style={{ height: item.size, transform:`translateY(${item.start}px)` }}>
-              <div className="w-64 truncate">{c.name}</div>
-              <div className="w-72 truncate text-gray-500">{c.email}</div>
-              <div className="capitalize px-2 py-1 text-xs rounded bg-gray-100">{c.stage}</div>
+            <div key={c.id} className="row" style={{
+              position:'absolute', left:0, right:0, height:item.size, transform:`translateY(${item.start}px)`,
+              borderBottom:'1px solid #e5e7eb', padding:'0 10px', background:'#fff', alignItems:'center'
+            }}>
+              <div style={{width:260}}><Link to={`/candidates/${c.id}`}><strong>{c.name}</strong></Link></div>
+              <div style={{width:300, color:'#6b7280'}}>{c.email}</div>
+              <div style={{width:160}}><span className="badge">{c.stage}</span></div>
+              <div style={{flex:1, color:'#6b7280'}}>Job: {c.jobId.slice(0,8)}…</div>
             </div>
-          )
+          );
         })}
       </div>
     </div>

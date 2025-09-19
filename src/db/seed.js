@@ -7,16 +7,16 @@ export async function ensureSeeded() {
   const flag = localStorage.getItem('tf_seeded_v1');
   if (flag) return;
 
-  await db.transaction('rw', db.jobs, db.candidates, db.assessments, db.timelines, async () => {
-    const jobs = seedJobs(25); // mixed active/archived, tags, order
-    await db.jobs.bulkAdd(jobs);
+  await db.transaction('rw', db.jobs, db.candidates, db.timelines, db.assessments, async () => {
+    const jobs = seedJobs(18);
+    await db.jobs.bulkPut(jobs);
 
-    const { candidates, timelines } = seedCandidates(1000, jobs);
-    await db.candidates.bulkAdd(candidates);
-    await db.timelines.bulkAdd(timelines);
+    const { candidates, timelines } = seedCandidates(600, jobs);
+    await db.candidates.bulkPut(candidates);
+    await db.timelines.bulkPut(timelines);
 
-    const assessments = seedAssessments(jobs); // ≥3 assessments, 10+ Qs each
-    await db.assessments.bulkAdd(assessments);
+    const assessments = seedAssessments(jobs);
+    await db.assessments.bulkPut(assessments);
   });
 
   localStorage.setItem('tf_seeded_v1', '1');

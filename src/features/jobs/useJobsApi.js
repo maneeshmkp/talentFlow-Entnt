@@ -27,7 +27,6 @@ export function useReorderJob() {
   return useMutation({
     mutationFn: ({ id, fromOrder, toOrder }) => api.patch(`/jobs/${id}/reorder`, { fromOrder, toOrder }),
     onMutate: async ({ fromOrder, toOrder }) => {
-      // optimistic: reorder in cache
       const keys = qc.getQueryCache().findAll({ queryKey: ['jobs'] }).map(q => q.queryKey);
       const prev = [];
       keys.forEach(k => {
@@ -49,15 +48,7 @@ export function useReorderJob() {
       });
       return { prev };
     },
-    onError: (_err, _vars, ctx) => {
-      // rollback
-      ctx?.prev?.forEach(([k, d]) => {
-        qc.setQueryData(k, d);
-      });
-    },
-    onSettled: () => {
-      // ensure server state eventually wins
-      qc.invalidateQueries({ queryKey: ['jobs'] });
-    }
+    onError: (_err, _vars, ctx) => ctx?.prev?.forEach(([k,d]) => qc.setQueryData(k, d)),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['jobs'] })
   });
 }
