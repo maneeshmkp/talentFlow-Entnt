@@ -48,7 +48,7 @@ export default function JobForm({ open, initial, onClose, onSave }) {
           <option value="active">Active</option>
           <option value="archived">Archived</option>
         </select>
-      </div>
+      </div> 
       {error && <p style={{color:'#b91c1c', marginTop:8}}>{error}</p>}
     </Modal>
   );
