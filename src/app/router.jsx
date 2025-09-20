@@ -11,8 +11,8 @@ function Shell() {
     <div className="container">
       <header className="row" style={{justifyContent:'space-between', marginBottom: 16}}>
         <Link to="/" className="row" style={{gap:8, textDecoration:'none'}}>
-          <strong style={{fontSize:20}}>talentFlow</strong>
-          <span className="badge">mini</span>
+          <strong style={{fontSize:20}}>JobFusion</strong>
+          <span className="badge">mkp</span>
         </Link>
         <nav className="row" style={{gap:10}}>
           <NavLink to="/jobs" className="btn secondary">Jobs</NavLink>

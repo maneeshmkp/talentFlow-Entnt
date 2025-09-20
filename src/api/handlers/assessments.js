@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../../db/db.js';
-import { withLatency, maybeFail } from '../../utils/sleep.js';
+import { withLatency, maybeFailWrite } from '../../utils/sleep.js';
 
 export const assessmentsHandlers = [
   // GET /assessments/:jobId
@@ -16,7 +16,7 @@ export const assessmentsHandlers = [
 
   // PUT /assessments/:jobId
   http.put('/assessments/:jobId', async ({ params, request }) => withLatency(async () => {
-    maybeFail(0.08);
+    maybeFailWrite();
     const { schema } = await request.json();
     const existing = await db.assessments.where('jobId').equals(params.jobId).first();
     if (existing) {
@@ -30,7 +30,7 @@ export const assessmentsHandlers = [
 
   // POST /assessments/:jobId/submit
   http.post('/assessments/:jobId/submit', async ({ params, request }) => withLatency(async () => {
-    maybeFail(0.06);
+     maybeFailWrite();
     const body = await request.json();
     const id = crypto.randomUUID();
     await db.submissions.add({ id, jobId: params.jobId, candidateId: body.candidateId || null, payload: body, ts: Date.now() });

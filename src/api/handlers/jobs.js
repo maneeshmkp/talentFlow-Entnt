@@ -1,6 +1,7 @@
+import { withLatency, maybeFailWrite } from '../../utils/sleep.js';
 import { http, HttpResponse } from 'msw';
 import { db } from '../../db/db.js';
-import { withLatency, maybeFail } from '../../utils/sleep.js';
+
 import slugify from '../../utils/slugify.js';
 
 export const jobsHandlers = [
@@ -26,7 +27,7 @@ export const jobsHandlers = [
 
   // POST /jobs
   http.post('/jobs', async ({ request }) => withLatency(async () => {
-    maybeFail(0.08);
+    maybeFailWrite();
     const body = await request.json();
     if (!body.title) return new HttpResponse('Title required', { status: 400 });
 
@@ -42,7 +43,7 @@ export const jobsHandlers = [
 
   // PATCH /jobs/:id
   http.patch('/jobs/:id', async ({ params, request }) => withLatency(async () => {
-    maybeFail(0.08);
+    maybeFailWrite();
     const id = params.id;
     const updates = await request.json();
     const job = await db.jobs.get(id);
@@ -62,7 +63,7 @@ export const jobsHandlers = [
 
   // PATCH /jobs/:id/reorder
   http.patch('/jobs/:id/reorder', async ({ request }) => withLatency(async () => {
-    maybeFail(0.1);
+    maybeFailWrite();
     const { fromOrder, toOrder } = await request.json();
     const rows = await db.jobs.orderBy('order').toArray();
     const moving = rows.find(r => r.order === fromOrder);

@@ -1,7 +1,7 @@
 import { range, pick, id } from '../../utils/rand.js';
 
-const first = ['Alex','Sam','Taylor','Jordan','Morgan','Jamie','Casey','Cameron','Riley','Avery','Quinn','Drew','Skyler','Harper'];
-const last = ['Lee','Kim','Patel','Singh','Garcia','Chen','Khan','Nguyen','Brown','Williams','Davis','Martinez','Lopez','Clark'];
+const first = ['Maneesh','Alex','Sam','Taylor','Jordan','Morgan','Jamie','Casey','Cameron','Riley','Avery','Quinn','Drew','Skyler','Harper'];
+const last = ['Prajapati','Lee','Kim','Patel','Singh','Garcia','Chen','Khan','Nguyen','Brown','Williams','Davis','Martinez','Lopez','Clark'];
 const stages = ['applied','screen','tech','offer','hired','rejected'];
 
 export function seedCandidates(total = 300, jobs) {
@@ -32,3 +32,5 @@ export function seedCandidates(total = 300, jobs) {
 
   return { candidates, timelines };
 }
+
+

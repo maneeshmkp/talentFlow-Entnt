@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { db } from '../../db/db.js';
-import { withLatency, maybeFail } from '../../utils/sleep.js';
+import { withLatency, maybeFailWrite } from '../../utils/sleep.js';
 
 export const candidatesHandlers = [
   // GET /candidates
@@ -39,7 +39,7 @@ export const candidatesHandlers = [
 
   // PATCH /candidates/:id
   http.patch('/candidates/:id', async ({ params, request }) => withLatency(async () => {
-    maybeFail(0.08);
+    maybeFailWrite();
     const updates = await request.json();
     const id = params.id;
     const cand = await db.candidates.get(id);
