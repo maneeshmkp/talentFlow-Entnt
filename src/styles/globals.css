@@ -1,14 +1,11 @@
+/* =============== */
+/* Base / Resets   */
+/* =============== */
 * { box-sizing: border-box; }
-html { font-size: 17px; }                /* 16 → 17 or 18 for bigger */
-body { line-height: 1.5; }
-
-.container { max-width: 1320px; }        /* was 1100px; try 1320–1440 */
-.card { padding: 20px; }                 /* more breathing room */
-.input { font-size: 1rem; padding: 10px 12px; }
-.btn   { font-size: 0.95rem; padding: 10px 14px; }
-.table th, .table td { padding: 12px; }  /* bigger rows */
+html { font-size: 17px; }
 html, body, #root { height: 100%; margin: 0; }
 body {
+  line-height: 1.5;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
   color: #111827;
   background: #f8fafc;
@@ -17,113 +14,81 @@ a { color: #2563eb; text-decoration: none; }
 button { cursor: pointer; }
 input, select, textarea { font: inherit; }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 16px;
-}
-
-.row { display: flex; align-items: center; gap: 10px; }
-
-.btn {
-  padding: 8px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #111827;
-  color: #fff;
-}
-.btn.secondary { background: #fff; color: #111827; }
-.btn.ghost { background: transparent; color: #111827; border: 1px dashed #cbd5e1; }
-
-/* Pills / header actions */
-.btn.pill { border-radius: 999px; padding: 8px 14px; }
-.btn.soft { background: #fff; color: #111827; border-color: #e5e7eb; }
-.btn.soft:hover { background: #f8fafc; }
-.header-actions { gap: 10px; }
-.header-actions .btn { box-shadow: 0 1px 0 rgba(17,24,39,.04); }
-
-.badge { padding: 2px 8px; border-radius: 999px; background: #e5e7eb; font-size: 12px; }
-
-.input {
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; }
-
-.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid-3  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-
-hr.sep { border: 0; border-top: 1px solid #e5e7eb; margin: 12px 0; }
-hr.sep { border-top-color: #eaecef; } /* lighter divider */
-
-/* ===================== */
-/* Breakpoints           */
-/* ===================== */
+/* =============== */
+/* Layout helpers  */
+/* =============== */
 :root {
   --bp-sm: 480px;
   --bp-md: 768px;
   --bp-lg: 1024px;
+  scrollbar-gutter: stable; /* avoid layout shift when scrollbars appear */
 }
 
-/* Container padding scales down on small screens */
-@media (max-width: var(--bp-md)) {
-  .container { padding: 12px; }
-}
+.container { max-width: 1320px; margin: 0 auto; padding: 15px; }
+.row { display: flex; align-items: center; gap: 12px; }
 
-/* Forms full width ONLY on small screens */
-@media (max-width: var(--bp-md)) {
-  input.input, select.input, textarea.input { width: 100%; }
-}
+.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
-/* Two-column / grid stacks on small screens */
 @media (max-width: var(--bp-md)) {
   .columns { grid-template-columns: 1fr; }
   .grid-3  { grid-template-columns: 1fr; }
 }
 
-/* Touch targets on tiny screens */
+/* =============== */
+/* Cards & Buttons */
+/* =============== */
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+}
+.card:hover { position: relative; z-index: 1; }
+
+.btn {
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  min-height: 36px;
+}
+.btn.secondary { background: #fff; color: #111827; }
+.btn.ghost { background: transparent; color: #111827; border: 1px dashed #cbd5e1; }
+.btn.pill { border-radius: 999px; padding: 8px 14px; }
+.btn.soft { background: #fff; color: #111827; border-color: #e5e7eb; }
+.btn.soft:hover { background: #f8fafc; }
+
 @media (max-width: var(--bp-sm)) {
   .btn { padding: 10px 14px; }
 }
 
-/* Header/nav can wrap */
-header .row { flex-wrap: wrap; }
+.badge { padding: 2px 8px; border-radius: 999px; background: #e5e7eb; font-size: 12px; }
 
-/* Hide/show helpers */
-.hide-sm { display: none !important; }
-@media (min-width: var(--bp-md)) { .hide-sm { display: table-cell !important; } }
-.show-sm { display: block !important; }
-@media (min-width: var(--bp-md)) { .show-sm { display: none !important; } }
-
-/* ===================== */
-/* Jobs filter bar       */
-/* ===================== */
-.filterbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap;            /* keep in one line on desktop */
-}
-.filterbar .input {
-  border-radius: 10px;
-  width: auto;                  /* override any 100% width */
-  min-width: 180px;
+/* =============== */
+/* Inputs          */
+/* =============== */
+.input {
+  font-size: 1rem;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  min-height: 36px;
 }
 @media (max-width: var(--bp-md)) {
-  .filterbar { flex-wrap: wrap; }     /* allow wrapping on small screens */
-  .filterbar .input { min-width: 140px; }
+  input.input, select.input, textarea.input { width: 100%; }
 }
 
+/* =============== */
+/* Tables          */
+/* =============== */
+.table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.table th, .table td { border-bottom: 1px solid #e5e7eb; padding: 12px; text-align: left; }
 
-/* Tables → cards (mobile) */
-/* ===================== */
+/* Mobile: cards */
 @media (max-width: var(--bp-md)) {
   .table { display: block; width: 100%; }
   .table thead { display: none; }
@@ -150,50 +115,112 @@ header .row { flex-wrap: wrap; }
   }
 }
 
-/* Virtualized list area */
+hr.sep { border: 0; border-top: 1px solid #e5e7eb; margin: 12px 0; border-top-color: #eaecef; }
+header .row { flex-wrap: wrap; }
+
+.hide-sm { display: none !important; }
+@media (min-width: var(--bp-md)) { .hide-sm { display: table-cell !important; } }
+.show-sm { display: block !important; }
+@media (min-width: var(--bp-md)) { .show-sm { display: none !important; } }
+
 .vh-panel { height: 70vh; }
 @media (max-width: var(--bp-md)) { .vh-panel { height: 65vh; } }
 
-/* ===================== */
-/* Candidates page polish - Kanban */
-/* ===================== */
+/* =============== */
+/* Filter bar      */
+/* =============== */
+.filterbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.filterbar .input {
+  border-radius: 10px;
+  width: auto;
+  min-width: 180px;
+}
+@media (max-width: var(--bp-md)) {
+  .filterbar { flex-wrap: wrap; }
+  .filterbar .input { min-width: 140px; }
+}
 
-/* Mobile: swipe behavior */
+/* =============== */
+/* Candidates Page */
+/* =============== */
+.page { padding: 16px; }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.page-title { min-width: 0; }
+.page-title .title { margin: 0; line-height: 1.2; }
+.page-title .subtitle { color: #6b7280; font-size: 14px; }
+
+.vh { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.board-note, .subtitle { color: #6b7280; }
+
+/* Header row inside page card */
+.card > .row:first-child { align-items: center; gap: 12px; flex-wrap: wrap; }
+.card > .row:first-child h2 { margin: 0; line-height: 1.2; }
+.card > .row:first-child .row { gap: 10px !important; }
+.card > .row:first-child .input { min-height: 36px; padding: 8px 10px; min-width: 180px; }
+.card > .row:first-child input.input { width: 240px; }
+@media (max-width: 900px) {
+  .card > .row:first-child input.input { flex: 1 1 180px; min-width: 0; }
+  .card > .row:first-child { flex-wrap: wrap; gap: 10px; }
+  .card > .row:first-child .row { flex: 1 1 100%; flex-wrap: wrap; gap: 10px; }
+  .card > .row:first-child .input { flex: 1 1 240px; min-width: 0; }
+}
+
+/* =============== */
+/* Kanban (mobile-first) */
+/* =============== */
 .kanban {
   display: flex;
-  grid-auto-flow: column;
-  grid-auto-columns: 85%;
+  flex-wrap: nowrap;
   gap: 14px;
-  overflow-x: hidden;
-  padding-bottom: 10px;
+  overflow-x: auto;          /* horizontal scroll on narrow screens */
+  overflow-y: visible;
+  padding-bottom: 26px;
   scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 .kanban-col {
-  flex: 1 1 0;            /* all columns shrink evenly */
-  min-width: 0;           /* allow content to shrink */
-  background: #fff;       /* same background as other columns */
+  flex: 0 0 86%;
+  min-width: 0;              /* allow inner content to shrink */
+  max-width: 86%;
+  background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 16px;
   box-sizing: border-box;
-  scroll-snap-align: start; }
+  scroll-snap-align: start;
+}
+@media (max-width: 640px) {
+  .kanban-col { flex-basis: 92%; max-width: 92%; }
+}
 
-/* Desktop: switch Kanban to FLEX so all 6 columns ALWAYS fit */
-@media (min-width: 768px) {
+/* Desktop: equal columns, no horizontal scroll */
+@media (min-width: 1025px) {
   .kanban {
-    display: flex;        
+    flex-wrap: nowrap;
+    overflow-x: visible;
+    padding-right: 10px;
     gap: 14px;
-    overflow-x: hidden;   
-    overflow-y: visible;
-    padding-right: 10px;  
   }
-  .kanban-col {           
+  .kanban-col {
     flex: 1 1 0;
-    min-width: 0;         
+    min-width: 0;            /* flex items can shrink below min-content */
+    max-width: none;
   }
 }
 
-/* Lighter tiles inside columns to avoid "double border" look */
+/* Tiles */
 .kanban-tile {
   border: 1px solid #edf2f7;
   background: #fafafa;
@@ -201,27 +228,188 @@ header .row { flex-wrap: wrap; }
 }
 .kanban-tile:hover { background: #f5f7fb; }
 
-/* Column heading rhythm */
-.kanban-col > h3:first-child {
-  margin: 2px 0 10px 0;
-  font-size: 16px;
+/* Safe truncation for long text inside tiles */
+.kanban-tile .line,
+.kanban-tile .email {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* Toolbar: make it look like inline controls */
-.board-toolbar {
-  border: 0 !important;
-  background: transparent !important;
-  padding: 0 !important;
+/* Column headings */
+.kanban-col > h3:first-child { margin: 2px 0 10px 0; font-size: 16px; }
+
+/* Board toolbar clean look */
+.board-toolbar { border: 0 !important; background: transparent !important; padding: 0 !important; }
+
+/* =============== */
+/* Candidate Profile */
+/* =============== */
+.profile { align-items: start; gap: 16px; }
+.profile-card, .profile-notes { padding: 16px; position: relative; }
+.profile-card:hover, .profile-notes:hover { z-index: 1; }
+
+.profile-header { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.avatar {
+  width: 48px; height: 48px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eef2f7; color: #111827; font-weight: 600;
+}
+.min-shrink { min-width: 0; }
+.profile-name { margin: 0; line-height: 1.2; }
+
+.profile-email {
+  display: block; max-width: 100%;
+  color: #2563eb; text-decoration: none;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.profile-email.wrap {
+  white-space: normal;
+  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
-/* Small note under the board (optional tidy) */
-.board-note {
-  margin: 4px 0 12px;
+.profile-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.stage-badge { background: #eef2ff; color: #1f2937; }
+
+.section-title { margin: 10px 0; font-size: 16px; }
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline-item {
+  display: grid; grid-template-columns: auto 1fr; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid #e5e7eb;
+}
+.timeline-item:last-child { border-bottom: 0; }
+.tstamp { color: #374151; }
+.note { color: #111827; }
+.muted { color: #6b7280; }
+
+/* =============== */
+/* Candidates list card: taller background + internal scrollbar */
+/* =============== */
+
+/* Make the lower list card tall and scroll inside */
+.page .card:last-of-type {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - 260px) !important;  /* background grows to viewport minus header */
+  overflow: hidden !important;                 /* scroll happens inside .table */
+}
+
+/* The table is the scrollable pane */
+.page .card:last-of-type .table {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;                    /* required so flex child can scroll */
+  max-height: 65vh !important;                 /* adjust as needed */
+  overflow-y: auto !important;                 /* vertical scrollbar */
+  overflow-x: auto !important;                 /* horizontal only if needed */
+  scrollbar-gutter: stable;
+}
+
+/* Prevent rows from widening the scroller */
+.page .card:last-of-type .table th,
+.page .card:last-of-type .table td {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+
+
+
+.kanban-tile {
+  background-color: #f9fafb;       /* light gray card */
+  border: 1px solid #e5e7eb;       /* subtle border */
+  border-radius: 8px;               /* rounded corners */
+  padding: 10px;
+  cursor: grab;                     /* draggable cursor */
+  transition: background 0.2s;
+}
+
+.kanban-tile:hover {
+  background-color: #e0f2fe;       /* highlight on hover */
+}
+
+.kanban-tile strong {
+  font-size: 17px;
+  color: #111827;                  /* dark text for name */
+}
+
+.kanban-tile div {
+  font-size: 14px;
+  color: #6b7280;                  /* gray text for email */
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: #d1fae5;        /* light green for stages (optional: color based on stage) */
+  border-radius: 4px;
+  font-size: 13px;
+  color: #065f46;                   /* dark green text */
+  text-transform: capitalize;
+}
+
+
+.job-text {
+  font-size: 14px;          /* bigger font */
   color: #6b7280;
-  font-size: 12px;
+  background-color: #f3f4f6;
+  padding: 8px 8px;         /* optional: adjust padding for bigger text */
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+  font-family: monospace;
 }
 
-/* Slightly tighter cards on very small screens */
-@media (max-width: var(--bp-sm)) {
-  .card { padding: 12px; border-radius: 8px; }
+
+.email-text {
+  font-size: 17px;        /* bigger font */
+  color: #6b7280;         /* gray */
+  margin-top: 2px;
+  overflow: hidden;       /* keeps long emails tidy */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+
+/* Dark mode variables */
+body.dark {
+  --page-bg: #121212;
+  --board-bg: #1E1E1E;
+  --card-bg: #262626;
+  --text: #161212;
+  --text-secondary: #111010;
+  --border: #333333;
+  --badge-green: #22C55E;
+}
+
+body.dark {
+  background: var(--page-bg);
+  color: var(--text);
+}
+
+body.dark .kanban-board {
+  background: var(--board-bg);
+}
+
+body.dark .kanban-card {
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+body.dark .kanban-card .secondary-text {
+  color: var(--text-secondary);
+}
+
+body.dark .badge-applied,
+body.dark .badge-screen,
+body.dark .badge-tech,
+body.dark .badge-offer {
+  background: var(--badge-green);
+  color: #ffffff; /* text inside badge */
 }

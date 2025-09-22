@@ -84,7 +84,7 @@ export default function AssessmentBuilder() {
                     setSchema({ ...current, questions: qs });
                   }}/>
                 </div>
-              )}
+              )} 
               {q.type === 'number' && (
                 <div style={{marginTop:8}} className="columns">
                   <div>
