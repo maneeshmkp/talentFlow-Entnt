@@ -1,87 +1,26 @@
-# JobFusion
+# TALENTFLOW – A MINI HIRING PLATFORM
 
-A **mini hiring platform** built with **React + Vite (JavaScript)**, using **Dexie (IndexedDB)** for storage and **MSW** to simulate a backend with realistic latency and write failures. Features include Jobs management, a Candidates Kanban with drag-and-drop, a virtualized Candidates table, and an Assessment Builder.
+A mini hiring platform built with React + Vite (JavaScript), using Dexie (IndexedDB) for storage and MSW to simulate a backend with realistic latency and write failures. Features include Jobs management, a Candidates Kanban with drag-and-drop, a virtualized Candidates table, and an Assessment Builder.
 
----
+![Alt Text](front.jpg)
 
 ## 1. Setup
-
-### Prerequisites
-- Node.js **18+** and npm
+Prerequisites
+- Node.js 18+ and npm
 - Modern browser (Chrome/Edge/Firefox)
 
-### Install & Run
-```bash
-# from project root (talentFlow/)
-npm install
+## Features 📌
 
-# generate MSW worker ONCE
-npx msw init public --save
+- Natural language query processing
+- Job description analysis
+- Semantic search using embeddings
+- API for programmatic access
+- Web interface for easy interaction
+- Evaluation metrics (Mean Recall@3 and MAP@3)
 
-# start dev server
-npm run dev
+## Project Structure 📂
 
-
-Open the printed URL (usually http://localhost:5173).
-
-Branding
-
-App name: JobFusion
-
-index.html → <title>JobFusion</title>
-
-Optional per-page titles via src/app/useDocumentTitle.js.
-
-Data Seeding
-
-On first load, the app seeds:
-
-25 jobs (active + archived)
-
-1,000 candidates randomly assigned to jobs & stages (+ timelines)
-
-≥3 assessments with 12 questions each
-
-Seeding runs via ensureSeeded() (Dexie) and is guarded by a localStorage flag (tf_seeded_v2).
-
-Reseed (if counts changed):
-
-DevTools → Application → IndexedDB → delete database talentflow
-
-DevTools → Application → Local Storage → remove tf_seeded_v2
-
-Reload the page
-OR bump the flag key in src/db/seed.js.
-
-#Script: 
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview"
-}
-
-Optional: add "lint" or "test" scripts later.
-
-#2. Architecture
-##High-Level
-
-React (Vite)
-│
-├─ React Router           → routes & pages
-├─ @tanstack/react-query  → data fetching/cache/status
-├─ MSW (Mock Service Worker)
-│    └─ /api/handlers/*   → mock endpoints (adds latency & write failures)
-├─ Dexie (IndexedDB)
-│    ├─ /db/talentflow.js → schema & tables
-│    ├─ /db/seed.js       → ensureSeeded()
-│    └─ /db/seedData/*    → jobs, candidates, assessments
-└─ UI
-     ├─ Jobs: CRUD, archive, reorder
-     ├─ Candidates: Kanban (dnd-kit) + Virtualized List (tanstack/virtual)
-     └─ Assessment Builder: schema editor
-
-
-#Key Folders
+\`\`\`
 src/
 ├─ app/            # main.jsx, router.jsx, queryClient, useDocumentTitle
 ├─ api/            # msw.js + domain handlers
@@ -94,8 +33,11 @@ src/
 ├─ styles/         # globals.css (+ optional tokens.css)
 └─ utils/          # sleep.js (latency & failure), rand.js/randish.js
 
+\`\`\`
 
-#Data Model (Dexie)
+## Technical Approach
+
+### Data Model (Dexie)
 
 jobs: {
   id, title, slug, status, order, tags[], createdAt
@@ -113,130 +55,142 @@ assessments: {
   jobId, schema: { title, questions[] }
 }
 
+### Data Flow
 
-Data Flow
+- UI triggers React Query call → MSW handler (HTTP-like)
 
-UI triggers React Query call → MSW handler (HTTP-like)
+- Handler waits 200–1200ms and may throw 5–10% errors for writes
 
-Handler waits 200–1200ms and may throw 5–10% errors for writes
+- Handler performs Dexie reads/writes
 
-Handler performs Dexie reads/writes
+- UI shows loading / success / error states
 
-UI shows loading / success / error states
+- State Management
 
-State Management
+- React Query caches server shapes and mutations
 
-React Query caches server shapes and mutations
+- Local UI state is minimal (filters, dialogs, form values)
 
-Local UI state is minimal (filters, dialogs, form values)
+![Alt Text](DataFlow.jpg)
 
 
-3. Technical Decisions
+### Technical Decisions
 
-Client-only stack (Dexie + MSW) → fast iteration + realistic flows
+1. Client-only stack (Dexie + MSW) → fast iteration + realistic flows
+2. React Query → consistent loading/error handling, easy retries
+3. dnd-kit → Kanban drag-and-drop
+4. Virtualized list → scales to 1k+ candidates smoothly
+5. BulkPut for seeding → avoids duplicate-key errors
+6. Responsive CSS → mobile Kanban uses horizontal swipe, desktop fits 6 columns
+7. Write-failure injection → only on mutations to simulate realistic errors
 
-React Query → consistent loading/error handling, easy retries
+### Known Issues & Workarounds
 
-dnd-kit → Kanban drag-and-drop
+1. Chrome extension noise: Use Incognito / disable extensions
+2. MSW worker MIME error: Run npx msw init public --save & restart dev server
+3. Not seeing seeded data: Clear IndexedDB + seed flag or bump flag in seed.js
+4. Kanban column overflow: Use flex layout or scrollable columns
 
-Virtualized list → scales to 1k+ candidates smoothly
+## Styling & UX Guidelines
 
-BulkPut for seeding → avoids duplicate-key errors
+1. Optional tokens.css for colors, spacing, shadows
+2. Tables collapse to card rows on mobile
+3. Filter bars wrap on mobile
+4. Kanban: .kanban, .kanban-col, .kanban-tile for styling
+5. Accessibility: :focus-visible, aria-label/role, contrast ≥ 4.5:1
 
-Responsive CSS → mobile Kanban uses horizontal swipe, desktop fits 6 columns
+##  Performance Notes
+- Virtualization prevents DOM bloat
+- React Query: set staleTime to reduce refetch, limit retry
+- Use SVGs for icons, avoid large assets
 
-Write-failure injection → only on mutations to simulate realistic errors
+## Troubleshooting
+- Module export errors: Check import names, restart Vite
+- Service worker stuck: DevTools → Application → Service Workers → Unregister
+- Seeding loops: Wrap in try/catch, mark flag in finally, bulkPut, retry after clearing IndexedDB
 
+## Future Enhancements
+- Real backend + auth
+- Server-side pagination & filtering
+- Richer Assessment Builder (preview, validation, scoring)
+- Export/import demo data (CSV/JSON)
+- Tests (unit, component, E2E)
+- CI: lint/test/build on push
 
+\`\`\`
+Use MSW or MirageJS to simulate a REST API with the following resources:
+• GET /jobs?search=&status=&page=&pageSize=&sort=
+• POST /jobs → { id, title, slug, status: "active"|"archived", tags: string[], order: number }
+• PATCH /jobs/:id
+• PATCH /jobs/:id/reorder → { fromOrder, toOrder } (occasionally return 500 to test
+rollback)
+• GET /candidates?search=&stage=&page=
+• POST /candidates → { id, name, email, stage:
+"applied"|"screen"|"tech"|"offer"|"hired"|"rejected" }
+• PATCH /candidates/:id (stage transitions)
+• GET /candidates/:id/timeline
+• GET /assessments/:jobId
+• PUT /assessments/:jobId
+• POST /assessments/:jobId/submit (store response locally)
+\`\`\`
 
+## Getting Started
 
-4. Known Issues & Workarounds
+### Prerequisites
 
-Chrome extension noise: Use Incognito / disable extensions
+- Node.js 18+
+- npm or yarn
 
-MSW worker MIME error: Run npx msw init public --save & restart dev server
+### Installation
 
-Not seeing seeded data: Clear IndexedDB + seed flag or bump flag in seed.js
+1. Clone the repository
+ ```sh
+   git clone https://github.com/maneeshmkp/talentFlow-Entnt
+   cd talentFlow
+   ```
 
-Kanban column overflow: Use flex layout or scrollable columns
+2. ### Install dependencies:
+  ```sh
+   npm install
+    ```
 
+3. ### Run the development server:
+   ``` sh
+   npm run dev
+   ```
 
+4. ### Running Sever
+Open [http://localhost:3000](http://localhost:3000) in your browser
 
-5. Styling & UX Guidelines
+## Deployment
 
-Optional tokens.css for colors, spacing, shadows
+The application can be deployed to Vercel with a single command:
 
-Tables collapse to card rows on mobile
+\`\`\`
+vercel
+\`\`\`
 
-Filter bars wrap on mobile
-
-Kanban: .kanban, .kanban-col, .kanban-tile for styling
-
-Accessibility: :focus-visible, aria-label/role, contrast ≥ 4.5:1
-
-
-6. Performance Notes
-
-Virtualization prevents DOM bloat
-
-React Query: set staleTime to reduce refetch, limit retry
-
-Use SVGs for icons, avoid large assets
-
-
-
-
-7. Troubleshooting
-
-Module export errors: Check import names, restart Vite
-
-Service worker stuck: DevTools → Application → Service Workers → Unregister
-
-Seeding loops: Wrap in try/catch, mark flag in finally, bulkPut, retry after clearing IndexedDB
-
-
-
-8. Future Enhancements
-
-Real backend + auth
-
-Server-side pagination & filtering
-
-Richer Assessment Builder (preview, validation, scoring)
-
-Export/import demo data (CSV/JSON)
-
-Tests (unit, component, E2E)
-
-CI: lint/test/build on push
-
-9. License
-
-MIT (update as needed)
-# JobFusion
-
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![React](https://img.shields.io/badge/React-18.2.0-blue)
-![Vite](https://img.shields.io/badge/Vite-4.6.14-brightgreen)
-
-A **mini hiring platform** built with **React + Vite (JavaScript)**, using **Dexie (IndexedDB)** for storage and **MSW** to simulate a backend with realistic latency and write failures. Features include Jobs management, a Candidates Kanban with drag-and-drop, a virtualized Candidates table, and an Assessment Builder.
-
----
-
-## Demo
-
-*Open locally after setup* → http://localhost:5173
-
-*Optional*: Add screenshots here using:
-
-```markdown
-![JobFusion Dashboard](path/to/screenshot.png)
-
-
-
-Quick Start Checklist
+## Quick Start Checklist
 npm install
 npx msw init public --save
 # Verify ensureSeeded() → 25 jobs / 1,000 candidates / ≥3 assessments
 # If counts changed → clear IndexedDB + seed flag
 npm run dev
+
+
+## Connect with Me 🚀
+
+[![Twitter](https://img.shields.io/badge/Twitter-%231DA1F2.svg?style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/ManeeshKum14044)
+[![GitHub](https://img.shields.io/badge/GitHub-%2312100E.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maneeshmkp)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230A66C2.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/maneeshmkp/)
+
+
+## License 📜  
+
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
+
+---
+
+## Keep Learning and Exploring 🚀  
+
+Happy coding! 😊 If you find this project helpful, give it a ⭐ on GitHub!  
