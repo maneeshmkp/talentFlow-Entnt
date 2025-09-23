@@ -119,20 +119,20 @@ assessments: {
 
 ## Data & API End Points
 Use MSW or MirageJS to simulate a REST API with the following resources:
-• GET /jobs?search=&status=&page=&pageSize=&sort=
-• POST /jobs → { id, title, slug, status: "active"|"archived", tags: string[], order: number }
-• PATCH /jobs/:id
-• PATCH /jobs/:id/reorder → { fromOrder, toOrder } (occasionally return 500 to test
+- GET /jobs?search=&status=&page=&pageSize=&sort=
+- POST /jobs → { id, title, slug, status: "active"|"archived", tags: string[], order: number }
+-  PATCH /jobs/:id
+- PATCH /jobs/:id/reorder → { fromOrder, toOrder } (occasionally return 500 to test
 rollback)
-• GET /candidates?search=&stage=&page=
-• POST /candidates → { id, name, email, stage:
+- GET /candidates?search=&stage=&page=
+- POST /candidates → { id, name, email, stage:
 "applied"|"screen"|"tech"|"offer"|"hired"|"rejected" }
-• PATCH /candidates/:id (stage transitions)
-• GET /candidates/:id/timeline
-• GET /assessments/:jobId
-• PUT /assessments/:jobId
-• POST /assessments/:jobId/submit (store response locally)
-\`\`\`
+- PATCH /candidates/:id (stage transitions)
+- GET /candidates/:id/timeline
+- GET /assessments/:jobId
+- PUT /assessments/:jobId
+- POST /assessments/:jobId/submit (store response locally)
+
 
 ## Getting Started
 
