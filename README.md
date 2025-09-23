@@ -117,7 +117,7 @@ assessments: {
 - Tests (unit, component, E2E)
 - CI: lint/test/build on push
 
-\`\`\`
+## Data & API End Points
 Use MSW or MirageJS to simulate a REST API with the following resources:
 • GET /jobs?search=&status=&page=&pageSize=&sort=
 • POST /jobs → { id, title, slug, status: "active"|"archived", tags: string[], order: number }
