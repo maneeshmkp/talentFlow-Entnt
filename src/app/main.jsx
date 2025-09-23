@@ -7,13 +7,13 @@ import { router } from './router.jsx';
 import "../styles/globals.css";
 
 // Start MSW in browser for dev
-if (import.meta.env.DEV) {
+// if (import.meta.env.DEV) {
   const { worker } = await import('../api/msw.js');
   await worker.start({ 
     onUnhandledRequest: 'bypass',
     serviceWorker: { url: '/mockServiceWorker.js' }
    });
-}
+// }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
