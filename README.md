@@ -65,7 +65,6 @@ Optional: add "lint" or "test" scripts later.
 #2. Architecture
 ##High-Level
 
-
 React (Vite)
 │
 ├─ React Router           → routes & pages
